@@ -2196,10 +2196,11 @@ fn parse_group_answers_all_yes(group: &str) -> i32 {
             let existing_map_value = map_of_q_count.get_mut(&q_answered);
             match existing_map_value {
                 Some(val) => {
-                    let new_value = *val + 1;
-                    map_of_q_count.insert(q_answered, new_value)
-                },
-                None => map_of_q_count.insert(q_answered, 1)
+                    *val += 1;
+                }
+                None => {
+                    map_of_q_count.insert(q_answered, 1);
+                }
             };
             real_person = true;
         }
@@ -2207,16 +2208,30 @@ fn parse_group_answers_all_yes(group: &str) -> i32 {
             num_people += 1
         }
     }
-    map_of_q_count.iter().filter(|(k, v)| !k.is_whitespace() && **v == num_people).collect::<Vec<(&char, &i32)>>().len() as i32
+    map_of_q_count
+        .iter()
+        .filter(|(k, v)| !k.is_whitespace() && **v == num_people)
+        .collect::<Vec<(&char, &i32)>>()
+        .len() as i32
 }
 pub fn day6_main() {
-    println!("part 1 q count: {}", parse_all_answers(GROUP_Q_ANSWERS, &parse_group_answers_anyone_yes));
-    println!("part 2 q count: {}", parse_group_answers_all_yes("zpyjmxrfdtwuhsblav
+    println!(
+        "part 1 q count: {}",
+        parse_all_answers(GROUP_Q_ANSWERS, &parse_group_answers_anyone_yes)
+    );
+    println!(
+        "part 2 q count: {}",
+        parse_group_answers_all_yes(
+            "zpyjmxrfdtwuhsblav
     vtdjpxsylwbramuf
     urwsdbxamylfptjv
     uaysdwjrvmptxlbf
     vpmsudtajlrwfxyb
-    "));
-    println!("part 2 q count: {}", parse_all_answers(GROUP_Q_ANSWERS, &parse_group_answers_all_yes));
-
+    "
+        )
+    );
+    println!(
+        "part 2 q count: {}",
+        parse_all_answers(GROUP_Q_ANSWERS, &parse_group_answers_all_yes)
+    );
 }
