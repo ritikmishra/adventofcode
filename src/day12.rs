@@ -868,6 +868,50 @@ fn estimate_manhattan_dist_travelled(movement_instrs: &Vec<MovementInstr>) -> f6
     pos.x.abs() + pos.y.abs()
 }
 
+/// ** waypoint pos is relative to the ship+++ **
+fn calculate_next_pos_waypoint_based(old_pos: &na::Vector2<f64>, waypoint_pos: &na::Vector2<f64>, instr: &MovementInstr) -> (na::Vector2<f64>, na::Vector2<f64>) {
+    match instr.dir {
+        MovementType::North => {
+            return (*old_pos, waypoint_pos + na::Vector2::new(0.0, instr.val as f64));
+        }
+        MovementType::East => {
+            return (*old_pos, waypoint_pos + na::Vector2::new(instr.val as f64, 0.0));
+        }
+        MovementType::South => {
+            return (*old_pos, waypoint_pos - na::Vector2::new(0.0, instr.val as f64));
+        }
+        MovementType::West => {
+            return (*old_pos, waypoint_pos - na::Vector2::new(instr.val as f64, 0.0));
+        }
+        MovementType::Forwards => {
+            return (old_pos + (instr.val as f64 * waypoint_pos), *waypoint_pos);
+        }
+        MovementType::Left => {
+            let rot = na::Rotation2::new((instr.val as f64) / 180.0 * 3.14159265);
+
+            return (*old_pos, rot * waypoint_pos);
+        },
+        MovementType::Right => {
+            let rot = na::Rotation2::new(-(instr.val as f64) / 180.0 * 3.14159265);
+
+            return (*old_pos, rot * waypoint_pos);
+        },
+    }
+}
+
+
+fn estimate_manhattan_dist_travelled_wp(movement_instrs: &Vec<MovementInstr>) -> f64 {
+    let mut pos = na::Vector2::new(0.0, 0.0);
+    let mut wp = na::Vector2::new(10.0, 1.0);
+    for instr in movement_instrs.iter() {
+        let tmp = calculate_next_pos_waypoint_based(&pos, &wp, instr);
+        pos = tmp.0;
+        wp = tmp.1;
+    }
+    pos.x.abs() + pos.y.abs()
+}
+
+
 pub fn day12_main() {
     let apple = "F10
 N3
@@ -876,4 +920,5 @@ R90
 F11";
     let movement_instrs: Vec<MovementInstr> = NAV_INSTRUCTIONS.split("\n").map(|x| x.parse::<MovementInstr>().unwrap()).collect();
     println!("manhattan dist moved is {}", estimate_manhattan_dist_travelled(&movement_instrs));
+    println!("manhattan dist moved by waypoints is {}", estimate_manhattan_dist_travelled_wp(&movement_instrs));
 }
