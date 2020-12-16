@@ -335,21 +335,6 @@ impl TicketField {
 }
 
 pub fn day16_main() {
-    let range = Range {
-        lower_bound: 0,
-        upper_bound: 10,
-    };
-    let range2 = Range {
-        lower_bound: 11,
-        upper_bound: 20,
-    };
-    let field = TicketField {
-        field_name: String::from("apple"),
-        valid_ranges: [range, range2],
-    };
-
-    println!("is {} in range? {}", 4, field.num_within_range(4));
-
     // Part 1
     let fields: Vec<TicketField> = REQUIRED_FIELDS
         .split("\n")
@@ -391,18 +376,22 @@ pub fn day16_main() {
     }
 
     // map key is index in fields list
-    let mut field_to_possible_indexes_map: HashMap<usize, HashSet<usize>> = HashMap::new();
+    let mut field_to_possible_ticket_indexes_map: HashMap<usize, HashSet<usize>> = HashMap::new();
     let initial_set_value: HashSet<usize> = (0..fields.len()).collect();
 
+    // fill out field_to_possible_ticket_indexes_map with default value, which is each field could be any of the fields in the ticket
     for (i, _) in fields.iter().enumerate() {
-        field_to_possible_indexes_map.insert(i, initial_set_value.iter().cloned().collect());
+        field_to_possible_ticket_indexes_map.insert(i, initial_set_value.iter().cloned().collect());
     }
 
+
     for ticket in nearby_tickets.iter() {
+        // if the ith field on some ticket is not valid for the field at field_idx, 
+        // remove it as being possible in the map
         for (i, value) in ticket.iter().enumerate() {
             for (field_idx, field) in fields.iter().enumerate() {
                 if !field.num_within_range(*value) {
-                    field_to_possible_indexes_map
+                    field_to_possible_ticket_indexes_map
                         .get_mut(&field_idx)
                         .unwrap()
                         .remove(&i);
@@ -411,7 +400,7 @@ pub fn day16_main() {
         }
     }
 
-    let mut sets_sorted_by_length: Vec<(usize, HashSet<usize>)> = field_to_possible_indexes_map
+    let mut sets_sorted_by_length: Vec<(usize, HashSet<usize>)> = field_to_possible_ticket_indexes_map
         .iter()
         .map(|(a, b)| (*a, b.iter().cloned().collect()))
         .collect();
@@ -419,15 +408,19 @@ pub fn day16_main() {
     sets_sorted_by_length
         .sort_by_key(|(_, set_of_possible_ticket_idxes)| set_of_possible_ticket_idxes.len());
 
+    // set of ticket field indexes that have been assigned a field
     let mut taken_ticket_idxes: HashSet<usize> = HashSet::new();
 
     for (_, set) in sets_sorted_by_length.iter_mut() {
+        // the field could not correspond to any of the ticket fields that have already been assigned a field
         *set = set.difference(&taken_ticket_idxes).cloned().collect();
         if set.len() == 1 {
+            // if there's only one option we are going to claim the ticket index for the field
             taken_ticket_idxes.insert(*set.iter().next().unwrap());
         }
     }   
 
+    // create our definitive mapping from field index to ticket index
     let mut definitive_field_ticket_idx_mapping: HashMap<usize, usize> = HashMap::new();
     for (field_idx, set_of_ticket_idxes) in sets_sorted_by_length.iter() {
         definitive_field_ticket_idx_mapping.insert(*field_idx, *set_of_ticket_idxes.iter().next().unwrap());
