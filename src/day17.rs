@@ -1,3 +1,5 @@
+use std::sync::Arc;
+use std::sync::mpsc;
 use std::slice::Iter;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -198,12 +200,17 @@ struct StateDelta<T> {
     remove: State<T>,
 }
 
-/// Execute a single iteration of the state
 fn single_iter<T: Day17Ops>(state: &State<T>) -> StateDelta<T> {
+    return single_iter_concurrent(state, 0, 1);
+}
+
+
+/// Execute a single iteration of the state
+fn single_iter_concurrent<T: Day17Ops>(state: &State<T>, skip_initial: usize, step: usize) -> StateDelta<T> {
     let mut remove: State<T> = HashSet::new();
     let mut map_inactive_cubes_to_qty_active_neighbors: HashMap<T, u32> = HashMap::new();
 
-    for coord in state.iter() {
+    for coord in state.iter().skip(skip_initial as usize).step_by(step) {
         let neighbor_cubes: State<T> = T::directions()
             .map(|dir| dir.add(coord))
             .collect();
@@ -322,4 +329,26 @@ pub fn day17_main() {
         apply_delta(&mut state, &state_delta);
     }
     println!("Part 2: Number of active cubes: {}", count_active_cubes(&state));
+
+    let mut state: State<Coords4D> = HashSet::new();
+    init_state(&mut state, INIT_STATE_FOR_Z0);
+    for _ in 0..100 {
+        let threads = 10;
+        let (tx, rx) = mpsc::channel::<StateDelta<Coords4D>>();
+
+        let mut join_handles = Vec::new();
+
+        for i in 0..threads {
+            let cloned_tx = tx.clone();
+            let cloned_state = state.iter().cloned().collect();
+            join_handles.push(std::thread::spawn(move || {
+                return single_iter_concurrent(&cloned_state, i, threads);
+            }));
+        }
+
+        for handle in join_handles {
+            apply_delta(&mut state, &handle.join().unwrap());
+        }
+    }
+    println!("part 2 but multithreaded: Number of active cubes: {}", count_active_cubes(&state));
 }
