@@ -387,6 +387,9 @@ enum Expression {
     Operation(Box<Expression>, Operation, Box<Expression>),
 }
 
+/// Evaluate an expression tree
+/// 
+/// The order of operations is implicit in the structure of the tree. 
 fn evaluate_expression(expr: &Expression) -> i64 {
     match expr {
         Expression::Num(num) => *num,
@@ -397,7 +400,14 @@ fn evaluate_expression(expr: &Expression) -> i64 {
     }
 }
 
-
+/// For an expression that has parentheses as the first and last character,
+/// return true if you could remove the first and last parentheses without
+/// changing the meaning of the expression
+/// 
+/// Just because the first + last characters are an open + close paren respectively
+/// does not mean that removing them would result in a valid expression
+/// 
+/// For example: `(1 + 2) * (3 + 4)` could become the invalid expression `1 + 2) * (3 + 4`
 fn parentheses_balanced_expression(expr: &str) -> bool {
     let mut paren_depth = 0;
     for (i, letter) in expr.chars().enumerate() {
@@ -413,6 +423,16 @@ fn parentheses_balanced_expression(expr: &str) -> bool {
     paren_depth == 0
 }
 
+/// Finds the index that is the boundary between the last token (number or paren group) 
+/// 
+/// Examples
+/// ```
+/// let boundary = index_of_last_number_or_paren("2 + 3 + 5")
+/// assert_eq!(("2 + 3 +", " 5"), "2 + 3 + 5".split(boundary.unwrap()))
+/// 
+/// let boundary = index_of_last_number_or_paren("2 + (3 + 5)")
+/// assert_eq!(("2 +", " (3 + 5)"), "2 + (3 + 5)".split(boundary.unwrap()))
+/// ```
 fn index_of_last_number_or_paren(expr: &str) -> Option<usize> {
     let mut paren_depth = 0;
     for (from_back, letter) in expr.chars().rev().enumerate() {
@@ -428,56 +448,25 @@ fn index_of_last_number_or_paren(expr: &str) -> Option<usize> {
     None
 }
 
-fn parse_expression(untrimmed_expr: &str) -> Expression {
-    lazy_static! {
-        static ref beepbeep_regex: Regex = Regex::new(r"^(.+) ([\+\*])").unwrap();
-        static ref outer_parens_regex: Regex = Regex::new(r"^\((.*)\)$").unwrap();
-    }
-
-    let expr = untrimmed_expr.trim();
-    match expr.trim().parse::<i64>() {
-        Ok(num) => Expression::Num(num),
-        Err(_) => {
-            let actual_expr: &str;
-            if let Some(unwrap_parens) = outer_parens_regex.captures(expr) {
-                if parentheses_balanced_expression(expr) {
-                    actual_expr = unwrap_parens.get(1).unwrap().as_str();
-                } else {
-                    actual_expr = expr;
-                }
-            } else {
-                actual_expr = expr;
-            }
-            let split_at = index_of_last_number_or_paren(actual_expr);
-            let (left, right_hand_expr_str) = actual_expr.split_at(split_at.unwrap());
-
-            let expr_captures = beepbeep_regex.captures(left).unwrap();
-            let left_hand_expr_str = expr_captures.get(1).unwrap().as_str();
-            let operator = expr_captures
-                .get(2)
-                .unwrap()
-                .as_str()
-                .chars()
-                .next()
-                .unwrap();
-            let left_hand_expr = parse_expression(left_hand_expr_str);
-            let right_hand_expr = parse_expression(right_hand_expr_str);
-
-            Expression::Operation(
-                Box::new(left_hand_expr),
-                if operator == '+' {
-                    Operation::Add
-                } else if operator == '*' {
-                    Operation::Mult
-                } else {
-                    panic!()
-                },
-                Box::new(right_hand_expr),
-            )
-        }
-    }
-}
-
+/// Finds the index that is the boundary between the last token (number or paren group), while 
+/// acknowledging the fact that addition has higher precedence over multiplication
+/// 
+/// Leaf nodes in the Expression tree get executed first
+/// 
+/// Examples
+/// ```
+/// let boundary = index_of_last_number_or_paren("2 * 3 + 5")
+/// assert_eq!(("2 *", "3 + 5"), "2 + 3 + 5".split(boundary.unwrap()))
+/// 
+/// let boundary = index_of_last_number_or_paren("2 + (3 * 5)")
+/// assert_eq!(("2 +", " (3 * 5)"), "2 + (3 * 5)".split(boundary.unwrap()))
+/// 
+/// let boundary = index_of_last_number_or_paren("2 + 3 + 5")
+/// assert_eq!(("2 + 3 +", " 5"), "2 + 3 + 5".split(boundary.unwrap()))
+/// 
+/// let boundary = index_of_last_number_or_paren("2 + (3 + 5)")
+/// assert_eq!(("2 +", " (3 + 5)"), "2 + (3 + 5)".split(boundary.unwrap()))
+/// ```
 fn index_of_last_number_or_paren_operator_precedence(expr: &str) -> Option<usize> {
     let mut paren_depth = 0;
     let mut maybe_ret: Option<usize> = None;
@@ -498,10 +487,10 @@ fn index_of_last_number_or_paren_operator_precedence(expr: &str) -> Option<usize
     maybe_ret
 }
 
-fn parse_expression_p2(untrimmed_expr: &str) -> Expression {
+fn parse_expression(untrimmed_expr: &str, find_index_of_last_token: &dyn Fn(&str) -> Option<usize>) -> Expression {
     lazy_static! {
-        static ref beepbeep_regex: Regex = Regex::new(r"^(.+) ([\+\*])").unwrap();
-        static ref outer_parens_regex: Regex = Regex::new(r"^\((.*)\)$").unwrap();
+        static ref LEFT_HAND_FRAGMENT_REGEX: Regex = Regex::new(r"^(.+) ([\+\*])").unwrap();
+        static ref OUTER_PARENS_REGEX: Regex = Regex::new(r"^\((.*)\)$").unwrap();
     }
 
     let expr = untrimmed_expr.trim();
@@ -509,7 +498,7 @@ fn parse_expression_p2(untrimmed_expr: &str) -> Expression {
         Ok(num) => Expression::Num(num),
         Err(_) => {
             let actual_expr: &str;
-            if let Some(unwrap_parens) = outer_parens_regex.captures(expr) {
+            if let Some(unwrap_parens) = OUTER_PARENS_REGEX.captures(expr) {
                 if parentheses_balanced_expression(expr) {
                     actual_expr = unwrap_parens.get(1).unwrap().as_str();
                 } else {
@@ -518,10 +507,10 @@ fn parse_expression_p2(untrimmed_expr: &str) -> Expression {
             } else {
                 actual_expr = expr;
             }
-            let split_at = index_of_last_number_or_paren_operator_precedence(actual_expr);
+            let split_at = find_index_of_last_token(actual_expr);
             let (left, right_hand_expr_str) = actual_expr.split_at(split_at.unwrap());
 
-            let expr_captures = beepbeep_regex.captures(left).unwrap();
+            let expr_captures = LEFT_HAND_FRAGMENT_REGEX.captures(left).unwrap();
             let left_hand_expr_str = expr_captures.get(1).unwrap().as_str();
             let operator = expr_captures
                 .get(2)
@@ -530,8 +519,8 @@ fn parse_expression_p2(untrimmed_expr: &str) -> Expression {
                 .chars()
                 .next()
                 .unwrap();
-            let left_hand_expr = parse_expression_p2(left_hand_expr_str);
-            let right_hand_expr = parse_expression_p2(right_hand_expr_str);
+            let left_hand_expr = parse_expression(left_hand_expr_str, find_index_of_last_token);
+            let right_hand_expr = parse_expression(right_hand_expr_str, find_index_of_last_token);
 
             Expression::Operation(
                 Box::new(left_hand_expr),
@@ -553,14 +542,14 @@ pub fn day18_main() {
     // part 1
     let mut sum = 0;
     for expr_line in MATH_EQUATIONS.split("\n") {
-        sum += evaluate_expression(&parse_expression(expr_line));
+        sum += evaluate_expression(&parse_expression(expr_line, &index_of_last_number_or_paren));
     }
     println!("sum of equation results, no precedence: {}", sum);
 
     // part 2
     let mut sum = 0;
     for expr_line in MATH_EQUATIONS.split("\n") {
-        sum += evaluate_expression(&parse_expression_p2(expr_line));
+        sum += evaluate_expression(&parse_expression(expr_line, &index_of_last_number_or_paren_operator_precedence));
     }
-    println!("sum of equation results, * precedes +: {}", sum);
+    println!("sum of equation results, + precedes *: {}", sum);
 }
