@@ -1,4 +1,5 @@
 #[macro_use] extern crate lazy_static;
+use std::time::Instant;
 
 // mod day1;
 // mod day2;
@@ -18,6 +19,8 @@
 mod day16;
 
 fn main() {
+    let start_time = Instant::now();
+
     // day1::day1_main();
     // day2::day2_main()
     // day3::day3_main();
@@ -34,4 +37,6 @@ fn main() {
     // day14::day14_main();
     // day15::day15_main();
     day16::day16_main();
+
+    println!("solution took {} milliseconds to complete", start_time.elapsed().as_millis());
 }
