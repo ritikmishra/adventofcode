@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+use itertools::Itertools;
 use regex::Regex;
 use std::collections::HashMap;
 
@@ -490,7 +492,6 @@ enum Rule {
     OneOfSeveralSequences(Vec<Rule>),
 }
 
-
 fn parse_muliple_rule_str(refs_to_other_rules: &str) -> Rule {
     let mut ret_subrules = Vec::new();
     for sub_rule in refs_to_other_rules.trim().split(" ") {
@@ -527,15 +528,24 @@ fn parse_rules(rules_str: &str) -> HashMap<u32, Rule> {
     return ret;
 }
 
+fn singleton_set<T: Eq + std::hash::Hash>(item: T) -> HashSet<T> {
+    let mut ret = HashSet::new();
+    ret.insert(item);
+    return ret;
+}
+
 /// ret val is
 /// - none if rule did not match
 /// - the number of characters matched (wrapped in Some) if it did match
-fn does_rule_match(rules_map: &HashMap<u32, Rule>, rule: &Rule, string: &str) -> Option<usize> {
+fn does_rule_match(rules_map: &HashMap<u32, Rule>, rule: &Rule, string: &str) -> Option<HashSet<usize>> {
+    // println!("\n\nmatching str {} to rule: {}\n{:?}", string, rule, rule);
     match rule {
         Rule::Literal(literal) => {
             if string.starts_with(literal) {
-                Some(literal.len())
+                // println!("matched");
+                Some(singleton_set(literal.len()))
             } else {
+                // println!("didn't match");
                 None
             }
         }
@@ -543,37 +553,37 @@ fn does_rule_match(rules_map: &HashMap<u32, Rule>, rule: &Rule, string: &str) ->
             does_rule_match(rules_map, rules_map.get(&other_rule_num).unwrap(), string)
         }
         Rule::RuleSequence(subrules) => {
-            let mut match_char_count: usize = 0;
+            let mut possible_idxes: HashSet<usize> = singleton_set(0);
             for subrule in subrules.iter() {
-                // println!("{:?}", subrule);
-                if match_char_count >= string.len() {
-                    return None;
+                let mut new_possible_idxes = HashSet::new();
+                for idx in possible_idxes.iter() {
+                    let subrule_match_result =
+                        does_rule_match(rules_map, subrule, &string[*idx..string.len()]);
+
+                    if let Some(num_chars_matched) = subrule_match_result {
+                        new_possible_idxes.extend(num_chars_matched.iter().map(|x| x + idx));
+                    }
                 }
-                let subrule_match_result =
-                    does_rule_match(rules_map, subrule, &string[match_char_count..string.len()]);
-                match subrule_match_result {
-                    None => return None,
-                    Some(num_chars_matched) => match_char_count += num_chars_matched,
-                }
+                possible_idxes = new_possible_idxes;
             }
-            return Some(match_char_count);
+
+            if possible_idxes.len() == 1 && possible_idxes.get(&0).is_some() {
+                return None;
+            }
+            return Some(possible_idxes);
         }
         Rule::OneOfSeveralSequences(subrules) => {
-            let sub_rule_matches: Vec<usize> = subrules
+            let sub_rule_matches: HashSet<usize> = subrules
                 .iter()
                 .map(|subrule| does_rule_match(rules_map, subrule, string))
                 .filter_map(|res| res)
+                .flat_map(|res| res)
                 .collect();
 
             if sub_rule_matches.len() == 0 {
                 return None;
-            } else if sub_rule_matches.len() > 1 {
-                println!(
-                    "WARNING: a Rule::OneOfSeveralSequences had {} subgroups match!",
-                    sub_rule_matches.len()
-                );
             }
-            Some(*sub_rule_matches.get(0).unwrap())
+            Some(sub_rule_matches)
         }
     }
 }
@@ -589,16 +599,14 @@ impl Clone for Rule {
     }
 }
 
-
 fn collapse_rule(rule: Rule) -> Rule {
     match rule {
         Rule::OneOfSeveralSequences(seqs) => {
             Rule::OneOfSeveralSequences(seqs.iter().cloned().map(&collapse_rule).collect())
-        },
+        }
         Rule::RuleSequence(seqs) => {
             let mut collapsed_subrules = Vec::new();
             let mut buffer = String::new();
-            
             for subrule in seqs {
                 match subrule {
                     Rule::Literal(literal) => buffer.push_str(literal.as_str()),
@@ -618,8 +626,8 @@ fn collapse_rule(rule: Rule) -> Rule {
             }
 
             Rule::RuleSequence(collapsed_subrules)
-        },
-        other => other
+        }
+        other => other,
     }
 }
 
@@ -632,7 +640,7 @@ fn condense_rule(rules_map: &HashMap<u32, Rule>, rule: &Rule) -> Option<Rule> {
             } else {
                 None
             }
-        },
+        }
         Rule::OneOfSeveralSequences(subrules) => {
             let mut new_subrules: Vec<Rule> = Vec::new();
             let mut changed_anything = false;
@@ -678,53 +686,43 @@ impl std::fmt::Display for Rule {
         match self {
             Rule::Literal(chr) => write!(f, "\"{}\"", chr),
             Rule::ReferenceAnotherRule(i) => write!(f, "{}", i),
-            Rule::OneOfSeveralSequences(seqs) => write!(f, "({})", seqs.iter().map(|subrule| subrule.to_string()).collect::<Vec<String>>().join(" | ")),
-            Rule::RuleSequence(seqs) => write!(f, "{}", seqs.iter().map(|subrule| subrule.to_string()).collect::<Vec<String>>().join(" ")),
+            Rule::OneOfSeveralSequences(seqs) => write!(
+                f,
+                "({})",
+                seqs.iter()
+                    .map(|subrule| subrule.to_string())
+                    .collect::<Vec<String>>()
+                    .join(" | ")
+            ),
+            Rule::RuleSequence(seqs) => write!(
+                f,
+                "{}",
+                seqs.iter()
+                    .map(|subrule| subrule.to_string())
+                    .collect::<Vec<String>>()
+                    .join(" ")
+            ),
         }
     }
 }
 
+fn count_matching_messages(rules: &HashMap<u32, Rule>, messages: &str) -> u32 {
+    let rule_0 = rules.get(&0).unwrap();
+    let mut matching_messages_count = 0;
+    for msg in messages.split("\n") {
+        let match_result = does_rule_match(&rules, rule_0, msg);
+        if let Some(chars_matched) = match_result {
+            if chars_matched.get(&msg.len()).is_some() {
+                matching_messages_count += 1;
+            }
+        }
+    }
+    return matching_messages_count;
+}
+
 pub fn day19_main() {
-//     let rules = "0: 4 1 5
-// 1: 2 3 | 3 2
-// 2: 4 4 | 5 5
-// 3: 4 5 | 5 4
-// 4: \"a\"
-// 5: \"b\"";
-
-//         let rules = "42: 9 14 | 10 1
-// 9: 14 27 | 1 26
-// 10: 23 14 | 28 1
-// 1: \"a\"
-// 11: 42 31 | 42 11 31
-// 5: 1 14 | 15 1
-// 19: 14 1 | 14 14
-// 12: 24 14 | 19 1
-// 16: 15 1 | 14 14
-// 31: 14 17 | 1 13
-// 6: 14 14 | 1 14
-// 2: 1 24 | 14 4
-// 0: 8 11
-// 13: 14 3 | 1 12
-// 15: 1 | 14
-// 17: 14 2 | 1 7
-// 23: 25 1 | 22 14
-// 28: 16 1
-// 4: 1 1
-// 20: 14 14 | 1 15
-// 3: 5 14 | 16 1
-// 27: 1 6 | 14 18
-// 14: \"b\"
-// 21: 14 1 | 1 14
-// 25: 1 1 | 1 14
-// 22: 14 14
-// 8: 42 | 42 8
-// 26: 14 22 | 1 20
-// 18: 15 15
-// 7: 14 5 | 1 21
-// 24: 14 1";
-
     let rules = RULES;
+    let messages = MESSAGES;
 
     let parsed_rules = parse_rules(rules);
 
@@ -754,42 +752,39 @@ pub fn day19_main() {
             break;
         }
     }
-    
     for (i, rule) in condensed_rules.iter() {
         println!("{}: {}", i, rule);
     }
-    
 
     println!("\n");
 
-    let test_rule = collapse_rule(Rule::RuleSequence(vec!(Rule::Literal("a".to_string()), Rule::Literal("b".to_string()), Rule::Literal("c".to_string()), Rule::Literal("c".to_string()))));
-     println!("{:?}", does_rule_match(&HashMap::new(), &test_rule, "abca"));
-    
-    
-//     let messages = "ababbb
-// bababa
-// abbbab
-// aaabbb
-// aaaabbb";
-
-    let messages = MESSAGES;
-
-    // let messages = "bbbababbbbaaaaaaaabbababaaababaabab";
-
-    let rule_0 = condensed_rules.get(&0).unwrap();
-    let mut matching_messages_count = 0;
-    for msg in messages.split("\n") {
-        let match_result = does_rule_match(&condensed_rules, rule_0, msg);
-        if let Some(chars_matched) = match_result {
-            if chars_matched == msg.len() {
-                matching_messages_count += 1;
-                // println!("{}", msg);
-            }
-        }
-    }
-
     println!(
         "Part 1: {} messages fully matched the rules",
-        matching_messages_count
+        count_matching_messages(&condensed_rules, messages)
+    );
+
+    // Part 2
+    // manually update rules 8, 11
+
+    // 8: 42 | 42 8
+    condensed_rules.insert(
+        8,
+        Rule::OneOfSeveralSequences(vec![Rule::ReferenceAnotherRule(42), Rule::RuleSequence(vec![Rule::ReferenceAnotherRule(42), Rule::ReferenceAnotherRule(8)])]),
+    );
+
+    // 11: 42 31 | 42 11 31
+    condensed_rules.insert(
+        11,
+        Rule::OneOfSeveralSequences(
+            vec![
+                Rule::RuleSequence(vec![Rule::ReferenceAnotherRule(42),Rule::ReferenceAnotherRule(31)]),
+                Rule::RuleSequence(vec![Rule::ReferenceAnotherRule(42),Rule::ReferenceAnotherRule(11), Rule::ReferenceAnotherRule(31)]),
+            ]
+        ),
+    );
+
+    println!(
+        "Part 2: {} messages fully matched the rules",
+        count_matching_messages(&condensed_rules, messages)
     );
 }
