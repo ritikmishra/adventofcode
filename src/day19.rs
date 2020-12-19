@@ -484,6 +484,13 @@ bbabbbbbababbaabaaaabbbb
 bbbababbbbbbbbbabbbabbbb
 abbbabbbbababbbbabbabbbb";
 
+
+/// Enum where each variant describes a rule
+/// 
+/// Literal: The rule matches a string literal. Can be 1 or more characters.
+/// ReferenceAnotherRule: The rule matches if the rule referenced does
+/// RuleSequence: The rule matches only if all child rules match in succession
+/// OneOfSeveralSequences: The rule matches if one or more child rules match
 #[derive(Debug)]
 enum Rule {
     Literal(String),
@@ -492,6 +499,7 @@ enum Rule {
     OneOfSeveralSequences(Vec<Rule>),
 }
 
+/// Parse a rule string such as `1 2 3` into a `Rule::RuleSeqence`
 fn parse_muliple_rule_str(refs_to_other_rules: &str) -> Rule {
     let mut ret_subrules = Vec::new();
     for sub_rule in refs_to_other_rules.trim().split(" ") {
@@ -500,6 +508,7 @@ fn parse_muliple_rule_str(refs_to_other_rules: &str) -> Rule {
     return Rule::RuleSequence(ret_subrules);
 }
 
+/// Parse the rules portion of the input into a map from the rule ID to the actual rule
 fn parse_rules(rules_str: &str) -> HashMap<u32, Rule> {
     let mut ret = HashMap::new();
 
@@ -528,6 +537,7 @@ fn parse_rules(rules_str: &str) -> HashMap<u32, Rule> {
     return ret;
 }
 
+/// Return a HashSet containing just one item, which is `item`
 fn singleton_set<T: Eq + std::hash::Hash>(item: T) -> HashSet<T> {
     let mut ret = HashSet::new();
     ret.insert(item);
@@ -631,6 +641,25 @@ fn collapse_rule(rule: Rule) -> Rule {
     }
 }
 
+/// Condense the rules by
+/// 1. Inlining rules. For example,
+/// ```
+/// 1: 2 3
+/// 2: 3 | "b"
+/// 3: "a"
+/// ```
+/// 
+/// would become 
+/// 
+/// ```
+/// 1: ("a" | "b") "a"
+/// 2: 3 | "b"
+/// 3: "a"
+/// ```
+/// 
+/// after enough repeated applications of this function on rule `1`.
+/// 
+/// Returns Some if the could be condensed, None otherwise
 fn condense_rule(rules_map: &HashMap<u32, Rule>, rule: &Rule) -> Option<Rule> {
     // println!("{:?}", rule);
     match rule {
@@ -677,7 +706,7 @@ fn condense_rule(rules_map: &HashMap<u32, Rule>, rule: &Rule) -> Option<Rule> {
                 None
             }
         }
-        other_type => None,
+        Rule::Literal(_) => None, // string literal is as condensed as it can get
     }
 }
 
@@ -706,6 +735,10 @@ impl std::fmt::Display for Rule {
     }
 }
 
+/// Count the number of messages that fully match rule 0 in the provided rule set
+/// Parameters:
+///     - rules: Map from rule number to Rule
+///     - messages: newline-separated list of messages to match
 fn count_matching_messages(rules: &HashMap<u32, Rule>, messages: &str) -> u32 {
     let rule_0 = rules.get(&0).unwrap();
     let mut matching_messages_count = 0;
