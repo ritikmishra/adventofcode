@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use regex::Regex;
 
 const MATH_EQUATIONS: &str = "5 + 9 + 3 + ((2 + 8 + 2) + 8 + 9 * (4 * 2 * 5) + 6) * 4
@@ -385,18 +386,20 @@ enum Operation {
 enum Expression {
     Num(i64),
     Operation(Box<Expression>, Operation, Box<Expression>),
+    Variable(String)
 }
 
 /// Evaluate an expression tree
 /// 
 /// The order of operations is implicit in the structure of the tree. 
-fn evaluate_expression(expr: &Expression) -> i64 {
+fn evaluate_expression(expr: &Expression, variable_defs: &HashMap<String, i64>) -> i64 {
     match expr {
         Expression::Num(num) => *num,
         Expression::Operation(left_expr, op, right_expr) => match op {
-            Operation::Add => evaluate_expression(left_expr) + evaluate_expression(right_expr),
-            Operation::Mult => evaluate_expression(left_expr) * evaluate_expression(right_expr),
+            Operation::Add => evaluate_expression(left_expr, variable_defs) + evaluate_expression(right_expr, variable_defs),
+            Operation::Mult => evaluate_expression(left_expr, variable_defs) * evaluate_expression(right_expr, variable_defs),
         },
+        Expression::Variable(name) => *variable_defs.get(name).unwrap(),
     }
 }
 
@@ -487,10 +490,31 @@ fn index_of_last_number_or_paren_operator_precedence(expr: &str) -> Option<usize
     maybe_ret
 }
 
+fn index_of_last_number_or_paren_pemdas(expr: &str) -> Option<usize> {
+    let mut paren_depth = 0;
+    let mut maybe_ret: Option<usize> = None;
+    for (from_back, letter) in expr.chars().rev().enumerate() {
+        let i = expr.len() - from_back - 1;
+        if letter == ')' {
+            paren_depth += 1;
+        } else if letter == '(' {
+            paren_depth -= 1;
+        } else if paren_depth == 0 {
+            if letter == '+' {
+                return Some(i + 1);
+            } else if letter == '*' && maybe_ret == None {
+                maybe_ret = Some(i+1);
+            }
+        }
+    }
+    maybe_ret
+}
+
 fn parse_expression(untrimmed_expr: &str, find_index_of_last_token: &dyn Fn(&str) -> Option<usize>) -> Expression {
     lazy_static! {
         static ref LEFT_HAND_FRAGMENT_REGEX: Regex = Regex::new(r"^(.+) ([\+\*])").unwrap();
         static ref OUTER_PARENS_REGEX: Regex = Regex::new(r"^\((.*)\)$").unwrap();
+        static ref VALID_VAR_NAME: Regex = Regex::new(r"^\w[\w\d]*$").unwrap();
     }
 
     let expr = untrimmed_expr.trim();
@@ -507,6 +531,11 @@ fn parse_expression(untrimmed_expr: &str, find_index_of_last_token: &dyn Fn(&str
             } else {
                 actual_expr = expr;
             }
+            if VALID_VAR_NAME.is_match(actual_expr) {
+                return Expression::Variable(String::from(actual_expr));
+            }
+
+
             let split_at = find_index_of_last_token(actual_expr);
             let (left, right_hand_expr_str) = actual_expr.split_at(split_at.unwrap());
 
@@ -542,14 +571,24 @@ pub fn day18_main() {
     // part 1
     let mut sum = 0;
     for expr_line in MATH_EQUATIONS.split("\n") {
-        sum += evaluate_expression(&parse_expression(expr_line, &index_of_last_number_or_paren));
+        sum += evaluate_expression(&parse_expression(expr_line, &index_of_last_number_or_paren), &HashMap::new());
     }
-    println!("sum of equation results, no precedence: {}", sum);
+    println!("part 1 sum of equation results, no precedence: {}", sum);
 
     // part 2
     let mut sum = 0;
     for expr_line in MATH_EQUATIONS.split("\n") {
-        sum += evaluate_expression(&parse_expression(expr_line, &index_of_last_number_or_paren_operator_precedence));
+        sum += evaluate_expression(&parse_expression(expr_line, &index_of_last_number_or_paren_operator_precedence), &HashMap::new());
     }
-    println!("sum of equation results, + precedes *: {}", sum);
+    println!("part 2 sum of equation results, + precedes *: {}", sum);
+
+    // fun idea
+    let expr_with_variable = "(5 * x * x) + 6 * x * y + (y * y)"; // (5x + y)^2
+    let expr_tree = parse_expression(expr_with_variable, &index_of_last_number_or_paren_pemdas);
+    println!("here is the expression tree\n---\n{:?}\n---", expr_tree);
+    let mut var_defs: HashMap<String, i64> = HashMap::new();
+    var_defs.insert(String::from("x"), 1);
+    var_defs.insert(String::from("y"), -5);
+    println!("it evaluates to {}", evaluate_expression(&expr_tree, &var_defs));
+
 }
