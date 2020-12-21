@@ -20,8 +20,8 @@ use std::time::Instant;
 // mod day17;
 // mod day18;
 // mod day19;
-mod day20;
-
+// mod day20;
+mod day21;
 
 fn main() {
     let start_time = Instant::now();
@@ -45,6 +45,8 @@ fn main() {
     // day17::day17_main();
     // day18::day18_main();
     // day19::day19_main();
-    day20::day20_main();
+    // day20::day20_main();
+    day21::day21_main();
+
     println!("solution took {} milliseconds to complete", start_time.elapsed().as_millis());
 }
