@@ -16,6 +16,8 @@ fn hash(v: &Vec<i32>) -> u64 {
     return hasher.finish();
 }
 
+
+// represents cup ordering
 #[derive(Debug, Copy, Clone)]
 struct LinkedCup {
     prev_cup: i32,
@@ -122,22 +124,6 @@ fn move_cups(initial_cups: &Vec<i32>, moves: usize) ->  HashMap<i32, LinkedCup> 
     }
     
     return current_cups;
-}
-
-fn print_p2_ans(cups: &Vec<i32>) {
-    let index_of_cup_1: usize = cups
-        .clone()
-        .into_iter()
-        .enumerate()
-        .filter(|(_i, cupval)| *cupval == 1)
-        .next()
-        .unwrap()
-        .0;
-
-    println!("index of cup 1: {}", index_of_cup_1);
-    let cup_after_1 = (index_of_cup_1 + 1) % cups.len();
-    let second_cup_after = (index_of_cup_1 + 2) % cups.len();
-    println!("{}", (cup_after_1 as u64) * (second_cup_after as u64));
 }
 
 pub fn day23_main() {
