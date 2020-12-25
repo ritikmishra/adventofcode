@@ -431,6 +431,8 @@ senenwnenewnenenwswneneneseenenenwnenwnw
 wswneneswwneseswewnenenwnwswswnenwsw";
 
 lazy_static! {
+    /// e1 unit vector is (1, 0)
+    /// e2 unit vector is (cos(pi/3), sin(pi/3)) (i.e unit vector pointing up right 60 deg)
     static ref DIRECTIONS: Vec<Vector2<i64>> = vec![
         Vector2::new(1, 0),
         Vector2::new(-1, 0),
