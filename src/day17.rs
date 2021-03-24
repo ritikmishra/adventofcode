@@ -8,16 +8,6 @@ type Coords3D = (i32, i32, i32);
 type Coords4D = (i32, i32, i32, i32);
 type State<T: Day17Ops> = HashSet<T>;
 
-const INIT_STATE_FOR_Z0: &str = ".##..#.#
-#...##.#
-##...#.#
-.##.##..
-...#.#.#
-.##.#..#
-...#..##
-###..##.";
-
-
 // these directions were precomputed in Python using itertools.product
 // i did not sit and write out all 106 directions by hand :)
 const DIRECTIONS_3D: [Coords3D; 26] = [
@@ -314,6 +304,8 @@ impl Print<Coords4D> for State<Coords4D> {
 }
 
 pub fn day17_main() {
+    let INIT_STATE_FOR_Z0: &str = include_str!("../inputs/day17.txt").trim_end();
+
     let mut state: State<Coords3D> = HashSet::new();
     init_state(&mut state, INIT_STATE_FOR_Z0);
     for _ in 0..6 {

@@ -6,57 +6,7 @@ use std::hash::Hash;
 use std::hash::Hasher;
 use std::sync::Mutex;
 
-const P1_STARTING_CARDS: &str = "40
-26
-44
-14
-3
-17
-36
-43
-47
-38
-39
-41
-23
-28
-49
-27
-18
-2
-13
-32
-29
-11
-25
-24
-35";
-
-const P2_STARTING_CARDS: &str = "19
-15
-48
-37
-6
-34
-8
-50
-22
-46
-20
-21
-10
-1
-33
-30
-4
-5
-7
-31
-12
-9
-45
-42
-16";
+use itertools::Itertools;
 
 fn parse_deck(input: &str) -> VecDeque<u32> {
     return input
@@ -215,9 +165,16 @@ fn calculate_score(deck: &VecDeque<u32>) -> u32 {
 }
 
 pub fn day22_main() {
+    let INPUT = include_str!("../inputs/day22.txt");
+    let (player1, player2) = INPUT.trim_end().split("\n\n").collect_tuple().unwrap();
+
+    let replace = player1.replace("Player 1:", "");
+    let p1_starting_cards = replace.trim();
+    let replace = player2.replace("Player 2:", "");
+    let p2_starting_cards = replace.trim();
     // part 1
-    let mut p1_deck = parse_deck(P1_STARTING_CARDS);
-    let mut p2_deck = parse_deck(P2_STARTING_CARDS);
+    let mut p1_deck = parse_deck(p1_starting_cards);
+    let mut p2_deck = parse_deck(p2_starting_cards);
 
     println!("Part 1: ");
     println!(
@@ -238,8 +195,8 @@ pub fn day22_main() {
 14",
     );
 
-    let mut p1_deck = parse_deck(P1_STARTING_CARDS);
-    let mut p2_deck = parse_deck(P2_STARTING_CARDS);
+    let mut p1_deck = parse_deck(p1_starting_cards);
+    let mut p2_deck = parse_deck(p2_starting_cards);
 
     //     let mut p1_deck = parse_deck(
     //         "9

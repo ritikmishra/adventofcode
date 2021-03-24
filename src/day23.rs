@@ -6,8 +6,6 @@ use std::collections::LinkedList;
 use std::collections::VecDeque;
 use std::hash::{Hash, Hasher};
 
-const CUPS: &str = "598162734";
-
 fn hash(v: &Vec<i32>) -> u64 {
     let mut hasher = DefaultHasher::new();
     for i in v.iter() {
@@ -127,7 +125,8 @@ fn move_cups(initial_cups: &Vec<i32>, moves: usize) ->  HashMap<i32, LinkedCup> 
 }
 
 pub fn day23_main() {
-    let cups: Vec<i32> = CUPS
+    let cups: Vec<i32> = include_str!("../inputs/day23.txt")
+        .trim_end()
         .chars()
         .map(|chr| chr.to_digit(10).unwrap() as i32)
         .collect();

@@ -1,6 +1,4 @@
-
-const DOOR_PUBLIC_KEY: &str = "10943862";
-const CARD_PUBLIC_KEY: &str = "12721030";
+use itertools::Itertools;
 
 /// The handshake used by the card and the door involves an operation that transforms a subject number. To transform a subject number, start with the value 1. Then, a number of times called the loop size, perform the following steps:
 ///
@@ -32,8 +30,10 @@ fn find_loop_size(public_key: u64, initial_subject: u64) -> u64 {
 
 
 pub fn day25_main() {
-    let door_pub_key = DOOR_PUBLIC_KEY.parse::<u64>().unwrap();
-    let card_pub_key = CARD_PUBLIC_KEY.parse::<u64>().unwrap();
+    let input = include_str!("../inputs/day25.txt");
+    let (door_key_str, card_key_str) = input.trim_end().split_ascii_whitespace().collect_tuple().unwrap();
+    let door_pub_key = door_key_str.parse::<u64>().unwrap();
+    let card_pub_key = card_key_str.parse::<u64>().unwrap();
 
 
     let door_loops = find_loop_size(door_pub_key, 7);

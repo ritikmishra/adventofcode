@@ -1,5 +1,4 @@
-const BUS_TIMETABLES: &str = "1005162
-19,x,x,x,x,x,x,x,x,41,x,x,x,x,x,x,x,x,x,823,x,x,x,x,x,x,x,23,x,x,x,x,x,x,x,x,17,x,x,x,x,x,x,x,x,x,x,x,29,x,443,x,x,x,x,x,37,x,x,x,x,x,x,13";
+const BUS_TIMETABLES: &str = include_str!("../inputs/day13.txt");
 // 7,13,x,x,59,x,31,19";
 
 #[derive(Debug)]
@@ -124,7 +123,7 @@ fn earliest_time_all_buses_depart_sequentially(bus_ids: &Vec<Option<i64>>) -> i6
 }
 
 pub fn day13_main() {
-    let notes_split: Vec<&str> = BUS_TIMETABLES.split("\n").collect();
+    let notes_split: Vec<&str> = BUS_TIMETABLES.trim_end().split("\n").collect();
     let time_now = notes_split.get(0).unwrap().parse::<i64>().unwrap();
     let mut bus_ids: Vec<Option<i64>> = Vec::new();
 

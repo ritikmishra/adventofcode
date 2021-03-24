@@ -2,7 +2,7 @@ use std::time::Instant;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-const GAME_BEGINNING: &str = "8,13,1,0,18,9";
+const GAME_BEGINNING: &str = include_str!("../inputs/day15.txt");
 
 fn add_number(second_to_last: &mut HashMap<i32, usize>, last: &mut HashMap<i32, usize>, num: i32, i: usize) {
     match last.get_mut(&num) {
@@ -43,6 +43,7 @@ fn play_game_for_n_iters(initial_nums: &Vec<i32>, iters: i32) -> i32 {
 pub fn day15_main() {
     let now = Instant::now();
     let nums_vec: Vec<i32> = GAME_BEGINNING
+        .trim_end()
         .split(",")
         .map(|x| x.parse::<i32>().unwrap())
         .collect();
