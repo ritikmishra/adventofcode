@@ -4,7 +4,7 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-const TILES: &str = include_str!("../inputs/day20.txt");
+const TILES: &str = include_str!("../../inputs/day20.txt");
 
 /// Describes whether or not a tile has been flipped from the original input.
 #[derive(Debug, Clone)]

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
-const GROUP_Q_ANSWERS: &str = include_str!("../inputs/day6.txt");
+const GROUP_Q_ANSWERS: &str = include_str!("../../inputs/day6.txt");
 
 /// Count the number of unique questions that were answered
 /// by the people in this group

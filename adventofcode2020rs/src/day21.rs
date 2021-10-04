@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use itertools::join;
 
-const INGREDIENTS_LIST: &str = include_str!("../inputs/day21.txt");
+const INGREDIENTS_LIST: &str = include_str!("../../inputs/day21.txt");
 
 pub fn day21_main() {
     let ingredients_line_regex: Regex = Regex::new(r"^(.*) \(contains (.*)\)$").unwrap();

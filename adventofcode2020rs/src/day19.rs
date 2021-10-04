@@ -757,7 +757,7 @@ fn count_matching_messages(rules: &HashMap<u32, Rule>, messages: &str) -> u32 {
 }
 
 pub fn day19_main() {
-    let input: (&str, &str) = include_str!("../inputs/day19.txt")
+    let input: (&str, &str) = include_str!("../../inputs/day19.txt")
         .trim_end()
         .split("\n\n")
         .collect_tuple()

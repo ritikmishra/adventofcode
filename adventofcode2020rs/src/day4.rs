@@ -1,6 +1,6 @@
 use regex::Regex;
 
-const PASSPORTS: &str = include_str!("../inputs/day4.txt");
+const PASSPORTS: &str = include_str!("../../inputs/day4.txt");
 
 #[derive(Debug, Clone)]
 struct InvalidPassport<'a>(&'a str);

@@ -1,7 +1,7 @@
 use regex::Regex;
 use std::collections::HashMap;
 
-const BAG_REGULATIONS: &str = include_str!("../inputs/day7.txt");
+const BAG_REGULATIONS: &str = include_str!("../../inputs/day7.txt");
 
 #[derive(Debug)]
 struct BagRule<'a> {

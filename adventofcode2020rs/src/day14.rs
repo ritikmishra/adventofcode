@@ -2,7 +2,7 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::str::FromStr;
 
-const PORT_INIT_PROGRAM: &str = include_str!("../inputs/day14.txt");
+const PORT_INIT_PROGRAM: &str = include_str!("../../inputs/day14.txt");
 
 #[derive(Debug, Clone)]
 struct Mask {

@@ -1,4 +1,4 @@
-const BUS_TIMETABLES: &str = include_str!("../inputs/day13.txt");
+const BUS_TIMETABLES: &str = include_str!("../../inputs/day13.txt");
 // 7,13,x,x,59,x,31,19";
 
 #[derive(Debug)]

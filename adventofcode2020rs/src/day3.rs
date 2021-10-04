@@ -1,5 +1,5 @@
 
-const MAP_OF_SLOPE_AND_TREES: &str = include_str!("../inputs/day3.txt");
+const MAP_OF_SLOPE_AND_TREES: &str = include_str!("../../inputs/day3.txt");
 
 fn count_trees_on_path(map: &str, delta: (i32, i32)) -> i32 {
     let mut pos: (i32, i32) = (0, 0);

@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::str::FromStr;
 
-const INPUT: &str = include_str!("../inputs/day16.txt");
+const INPUT: &str = include_str!("../../inputs/day16.txt");
 
 #[derive(Debug, Clone)]
 struct Range {

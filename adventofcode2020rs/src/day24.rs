@@ -93,7 +93,7 @@ fn single_iter(black_tiles: &mut State) {
 }
 
 pub fn day24_main() {
-    let input = include_str!("../inputs/day24.txt");
+    let input = include_str!("../../inputs/day24.txt");
     let mut black_tiles: State = HashSet::new();
     let tiles: Vec<Vector2<i64>> = input.trim_end().split("\n").map(&parse_tile_into_vec).collect();
     for tile in tiles.iter() {

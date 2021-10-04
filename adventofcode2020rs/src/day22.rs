@@ -165,7 +165,7 @@ fn calculate_score(deck: &VecDeque<u32>) -> u32 {
 }
 
 pub fn day22_main() {
-    let INPUT = include_str!("../inputs/day22.txt");
+    let INPUT = include_str!("../../inputs/day22.txt");
     let (player1, player2) = INPUT.trim_end().split("\n\n").collect_tuple().unwrap();
 
     let replace = player1.replace("Player 1:", "");

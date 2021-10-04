@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-const INSTRUCTIONS: &str = include_str!("../inputs/day8.txt");
+const INSTRUCTIONS: &str = include_str!("../../inputs/day8.txt");
 
 fn run_program(instrs: &str) -> Result<i32, (i32, &str)> {
     let lines: Vec<&str> = instrs.split("\n").collect();

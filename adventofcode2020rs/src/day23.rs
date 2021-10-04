@@ -125,7 +125,7 @@ fn move_cups(initial_cups: &Vec<i32>, moves: usize) ->  HashMap<i32, LinkedCup> 
 }
 
 pub fn day23_main() {
-    let cups: Vec<i32> = include_str!("../inputs/day23.txt")
+    let cups: Vec<i32> = include_str!("../../inputs/day23.txt")
         .trim_end()
         .chars()
         .map(|chr| chr.to_digit(10).unwrap() as i32)

@@ -193,7 +193,7 @@ fn parse_expression(untrimmed_expr: &str, find_index_of_last_token: &dyn Fn(&str
 
 
 pub fn day18_main() {
-    let MATH_EQUATIONS = include_str!("../inputs/day18.txt");
+    let MATH_EQUATIONS = include_str!("../../inputs/day18.txt");
 
     // part 1
     let mut sum = 0;

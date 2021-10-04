@@ -1,4 +1,4 @@
-const XMAS_DATA: &str = include_str!("../inputs/day9.txt");
+const XMAS_DATA: &str = include_str!("../../inputs/day9.txt");
 
 pub fn find_first_noncompliant_number(preamble_size: i64, input: &str) -> Option<i64> {
     let all_nums: Vec<i64> = input.split("\n").map(|str_num| str_num.parse::<i64>().unwrap()).collect();

@@ -1,7 +1,7 @@
 use nalgebra as na;
 use std::str::FromStr;
 
-const NAV_INSTRUCTIONS: &str = include_str!("../inputs/day12.txt");
+const NAV_INSTRUCTIONS: &str = include_str!("../../inputs/day12.txt");
 
 #[derive(Debug)]
 enum MovementType {

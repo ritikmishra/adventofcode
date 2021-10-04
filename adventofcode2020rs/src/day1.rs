@@ -29,7 +29,7 @@ pub fn part2(input: &str) -> i32 {
 }
 
 pub fn day1_main() {
-    let x = include_str!("../inputs/day1.txt");
+    let x = include_str!("../../inputs/day1.txt");
 
     println!("part 1: {}", part1(x));
     println!("part 2: {}", part2(x));

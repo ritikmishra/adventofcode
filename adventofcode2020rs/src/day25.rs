@@ -30,7 +30,7 @@ fn find_loop_size(public_key: u64, initial_subject: u64) -> u64 {
 
 
 pub fn day25_main() {
-    let input = include_str!("../inputs/day25.txt");
+    let input = include_str!("../../inputs/day25.txt");
     let (door_key_str, card_key_str) = input.trim_end().split_ascii_whitespace().collect_tuple().unwrap();
     let door_pub_key = door_key_str.parse::<u64>().unwrap();
     let card_pub_key = card_key_str.parse::<u64>().unwrap();

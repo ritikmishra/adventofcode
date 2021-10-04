@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-const ADAPTER_RATING_LIST: &str = include_str!("../inputs/day10.txt");
+const ADAPTER_RATING_LIST: &str = include_str!("../../inputs/day10.txt");
 
 fn part1(joltage_adapter_list_str: &str) -> i32 {
     let mut joltage_adapters: Vec<i64> = joltage_adapter_list_str

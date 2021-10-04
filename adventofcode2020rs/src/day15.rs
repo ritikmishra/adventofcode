@@ -2,7 +2,7 @@ use std::time::Instant;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-const GAME_BEGINNING: &str = include_str!("../inputs/day15.txt");
+const GAME_BEGINNING: &str = include_str!("../../inputs/day15.txt");
 
 fn add_number(second_to_last: &mut HashMap<i32, usize>, last: &mut HashMap<i32, usize>, num: i32, i: usize) {
     match last.get_mut(&num) {

@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::collections::HashSet;
-const SEAT_LAYOUT: &str = include_str!("../inputs/day11.txt");
+const SEAT_LAYOUT: &str = include_str!("../../inputs/day11.txt");
 
 #[derive(Debug, Copy, Clone)]
 enum SeatState {

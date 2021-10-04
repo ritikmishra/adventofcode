@@ -304,7 +304,7 @@ impl Print<Coords4D> for State<Coords4D> {
 }
 
 pub fn day17_main() {
-    let INIT_STATE_FOR_Z0: &str = include_str!("../inputs/day17.txt").trim_end();
+    let INIT_STATE_FOR_Z0: &str = include_str!("../../inputs/day17.txt").trim_end();
 
     let mut state: State<Coords3D> = HashSet::new();
     init_state(&mut state, INIT_STATE_FOR_Z0);

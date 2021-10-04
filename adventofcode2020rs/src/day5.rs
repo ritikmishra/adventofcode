@@ -1,6 +1,6 @@
 use regex::Regex;
 
-const BOARDING_PASSES: &str = include_str!("../inputs/day5.txt");
+const BOARDING_PASSES: &str = include_str!("../../inputs/day5.txt");
 
 fn decode_boarding_pass(
     pass: String,

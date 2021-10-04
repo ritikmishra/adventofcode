@@ -80,6 +80,6 @@ fn check_all_passwords(password_db: &str, validate_row: fn(&PasswordDbRow) -> bo
 }
 
 pub fn day2_main() {
-    let password_db = include_str!("../inputs/day2.txt").trim_end();
+    let password_db = include_str!("../../inputs/day2.txt").trim_end();
     check_all_passwords(password_db, is_valid_password_part2_rules)
 }
