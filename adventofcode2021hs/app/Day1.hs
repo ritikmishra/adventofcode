@@ -14,6 +14,8 @@ pairIterator l = zip (init l) (tail l)
 tripleIterator :: [c] -> [(c, c, c)]
 tripleIterator l = zip3 (init (init l)) (tail (init l)) (tail (tail l))
 
+-- For each element i in the list
+-- count the number of pairs for which a_{i} < a_{i + 1}
 day1part1Soln :: [Int] -> Int
 day1part1Soln nums = foldl (\acc (prev, next) -> if next > prev then acc + 1 else acc) 0 (pairIterator nums)
 

@@ -1,22 +1,26 @@
 module Utils where
 
-splitAtNextNewline :: String -> (String, String)
-splitAtNextNewline = splitAtNextNewlineTailRec ""
+splitAtNextCharacter :: Char -> String -> (String, String)
+splitAtNextCharacter c = splitAtNextCharacterTailRec ""
   where
-    splitAtNextNewlineTailRec :: String -> String -> (String, String)
-    splitAtNextNewlineTailRec acc s =
+    splitAtNextCharacterTailRec :: String -> String -> (String, String)
+    splitAtNextCharacterTailRec acc s =
       case s of
         "" -> (acc, "")
-        '\n' : rest -> (acc, rest)
         -- hopefully ++ is tail recursive
-        x : xs -> splitAtNextNewlineTailRec (acc ++ [x]) xs
+        x : xs ->
+          if x == c
+            then (acc, xs)
+            else splitAtNextCharacterTailRec (acc ++ [x]) xs
 
-splitAllNewlines :: String -> [String]
-splitAllNewlines s =
-  let (first, rest) = splitAtNextNewline s
+splitAllCharacters :: Char -> String -> [String]
+splitAllCharacters c s =
+  let (first, rest) = splitAtNextCharacter c s
    in case rest of
         "" -> [first] -- nothing else to split
-        words -> first : splitAllNewlines rest
+        words -> first : splitAllCharacters c rest
+
+splitAllNewlines = splitAllCharacters '\n'
 
 stringToIntList :: String -> [Int]
-stringToIntList s = map read (splitAllNewlines s)
+stringToIntList s = map read (splitAllCharacters '\n' s)
