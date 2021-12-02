@@ -32,8 +32,8 @@ parseInstructions lines =
             rest <- parseInstructions xs
             return (currentSubInstruction : rest)
 
-day1Part1 :: [SubmarineInstruction] -> Int
-day1Part1 instructions =
+day2Part1 :: [SubmarineInstruction] -> Int
+day2Part1 instructions =
   let position =
         foldl
           ( \acc el ->
@@ -48,8 +48,8 @@ day1Part1 instructions =
     -- in position
    in horiz position * vert position
 
-day1Part2 :: [SubmarineInstruction] -> Int
-day1Part2 instructions =
+day2Part2 :: [SubmarineInstruction] -> Int
+day2Part2 instructions =
   let position =
         foldl
           ( \acc el ->
@@ -76,7 +76,7 @@ day2main = do
         }
         Just instr -> do {
             putStrLn "Day 1 Part 1 answer: ";
-            print $ day1Part1 instr;
+            print $ day2Part1 instr;
             putStrLn "Day 1 Part 2 answer: ";
-            print $ day1Part2 instr
+            print $ day2Part2 instr
         }
