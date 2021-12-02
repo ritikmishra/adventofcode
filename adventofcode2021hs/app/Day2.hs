@@ -16,10 +16,8 @@ data Position = Position
   } deriving (Show)
 
 parseInstructions :: [String] -> Maybe [SubmarineInstruction]
-parseInstructions lines =
-  case lines of
-    [] -> Just []
-    first : xs ->
+parseInstructions [] = Just []
+parseInstructions (first:xs) =
       let (kind, num) = splitAtNextCharacter ' ' first
        in do
             currentSubInstruction <-
