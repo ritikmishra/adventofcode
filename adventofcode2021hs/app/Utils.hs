@@ -1,5 +1,13 @@
 module Utils where
 
+import Data.Char
+
+lstrip :: String -> String
+lstrip = dropWhile isSpace
+
+strip :: String -> String
+strip = takeWhile (not . isSpace) . lstrip
+
 splitAtNextCharacter :: Char -> String -> (String, String)
 splitAtNextCharacter c = splitAtNextCharacterTailRec ""
   where
@@ -20,7 +28,5 @@ splitAllCharacters c s =
         "" -> [first] -- nothing else to split
         words -> first : splitAllCharacters c rest
 
-splitAllNewlines = splitAllCharacters '\n'
-
 stringToIntList :: String -> [Int]
-stringToIntList s = map read (splitAllCharacters '\n' s)
+stringToIntList s = map read $ lines s
