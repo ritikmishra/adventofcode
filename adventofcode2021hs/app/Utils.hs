@@ -2,6 +2,14 @@ module Utils where
 
 import Data.Char
 
+maybeMap :: (a -> Maybe b) -> [a] -> Maybe [b]
+maybeMap f [] = Just []
+maybeMap f (x : xs) = do
+  first <- f x
+  rest <- maybeMap f xs
+  return $ first : rest
+
+
 lstrip :: String -> String
 lstrip = dropWhile isSpace
 

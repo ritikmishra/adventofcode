@@ -1,11 +1,10 @@
-{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-
 module Day3 where
 
 import Data.Bifunctor
 import Data.Bits
 import Data.List
 import System.IO
+import Utils
 
 data Binary = Zero | One deriving (Show, Eq)
 
@@ -18,13 +17,6 @@ parseStringIntoBinary ('1' : xs) = do
   rest <- parseStringIntoBinary xs
   return $ One : rest
 parseStringIntoBinary (x : xs) = Nothing
-
-maybeMap :: (a -> Maybe b) -> [a] -> Maybe [b]
-maybeMap f [] = Just []
-maybeMap f (x : xs) = do
-  first <- f x
-  rest <- maybeMap f xs
-  return $ first : rest
 
 -- Apply Not to a single bit
 bitNot :: Binary -> Binary
