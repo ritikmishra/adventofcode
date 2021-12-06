@@ -30,6 +30,7 @@ executable adventofcode2021hs
                       Day3
                       Day4
                       Day5
+                      Day6
                       Utils
 
     -- LANGUAGE extensions used by modules in this package.
