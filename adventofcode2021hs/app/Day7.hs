@@ -1,42 +1,32 @@
 module Day7 where
 
-import System.IO
 import Data.List.Split (splitOn)
-import Utils (maybeMap)
+import System.IO
 import Text.Read (readMaybe)
+import Utils (maybeMap)
 
 parseToIntList :: String -> Maybe [Int]
 parseToIntList commaSeparatedNums =
-    let nums = splitOn "," commaSeparatedNums :: [String]
-    in maybeMap readMaybe nums
-
-part1cost :: Int -> [Int] -> Int
-part1cost newPos curPoses =
-    sum (map (abs . subtract newPos) curPoses)
+  let nums = splitOn "," commaSeparatedNums :: [String]
+   in maybeMap readMaybe nums
 
 sumToN :: Int -> Int
 sumToN n = div (n * (n + 1)) 2
 
-part2cost :: Int -> [Int] -> Int
-part2cost newPos curPoses =
-    sum (map (sumToN . abs . subtract newPos) curPoses)
+findLowestCost :: (Int -> Int) -> [Int] -> Int
+findLowestCost cost poses = minimum [sum [cost (curPose - newPose) | curPose <- poses] | newPose <- [0 .. 1000]]
 
-bruteForceCheapestPosition :: (Int -> [Int] -> Int) -> [Int] -> (Int, Int)
-bruteForceCheapestPosition cost poses =
-    let (smallestPos, largestPos) = (minimum poses, maximum poses) in
-        let costsByNewPoses = map (\pos -> (cost pos poses, pos)) [smallestPos..largestPos]
-        in foldl1 (\acc@(accCost, _) el@(elCost,_) -> if elCost < accCost then el else acc) costsByNewPoses
+day7part1 = findLowestCost abs
 
-day7part1 = bruteForceCheapestPosition part1cost 
-day7part2 = bruteForceCheapestPosition part2cost
+day7part2 = findLowestCost $ abs . sumToN
 
 day7main :: IO ()
 day7main = do
-    handle <- openFile "../inputs2021/day7.txt" ReadMode
-    contents <- hGetContents handle
-    case parseToIntList contents of
-        Nothing -> putStrLn "could not parse"
-        Just x -> do
-            print $ day7part1 x
-            print $ day7part2 x
-    return ()
+  handle <- openFile "../inputs2021/day7.txt" ReadMode
+  contents <- hGetContents handle
+  case parseToIntList contents of
+    Nothing -> putStrLn "could not parse"
+    Just x -> do
+      print $ day7part1 x
+      print $ day7part2 x
+  return ()
