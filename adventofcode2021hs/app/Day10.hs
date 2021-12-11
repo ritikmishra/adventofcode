@@ -45,11 +45,12 @@ findFirstIllegalToken stack tokens =
           then findFirstIllegalToken ss xs
           else IllegalToken t
 
--- day10part1 :: [[Token]] -> Int
+day10part1 :: [[Token]] -> Int
 day10part1 tokens =
   let illegalCharacters = concatMap ((\case IllegalToken x -> [kind x]; _ -> []) . findFirstIllegalToken []) tokens
    in sum (map (\case Parens -> 3; Square -> 57; Curly -> 1197; Angle -> 25137) illegalCharacters)
 
+day10part2 :: [[Token]] -> Int
 day10part2 tokens =
   let incompleteLines = concatMap ((\case IncompleteString x -> [x]; _ -> []) . findFirstIllegalToken []) tokens
    in let scores = sort $ map calcStackScore incompleteLines
