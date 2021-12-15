@@ -78,7 +78,7 @@ printDots :: Dots -> String
 printDots (Dots dset) =
   let (maxX, maxY) = maximum dset
     in let lines = [[if Set.member (x, y) dset then '▉' else ' ' | x <- [0..maxX]] | y <- [0..maxY + 1]]
-    in foldl1 (\acc el -> acc ++ "\n" ++ el) lines
+    in foldl1 (\acc el -> acc ++ '\n':el) lines
 
 day13main :: IO ()
 day13main = do
