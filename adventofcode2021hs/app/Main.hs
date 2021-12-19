@@ -18,7 +18,8 @@ import Day14
 import Day15
 import Day16
 import Day17
+import Day18
 import Utils
 
 main :: IO ()
-main = day17main
+main = day18main
