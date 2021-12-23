@@ -4,7 +4,7 @@ import Data.Bifunctor
 import Data.Bits
 import Data.List
 import System.IO
-import Utils
+import Utils hiding (enumerate)
 
 data Binary = Zero | One deriving (Show, Eq)
 

@@ -38,3 +38,6 @@ splitAllCharacters c s =
 
 stringToIntList :: String -> [Int]
 stringToIntList s = map read $ lines s
+
+enumerate :: [b] -> [(Int, b)]
+enumerate = zip [0..]

@@ -43,6 +43,8 @@ executable adventofcode2021hs
                       Day16
                       Day17
                       Day18
+                      Day19
+                      VectorMath
                       Utils
 
     -- LANGUAGE extensions used by modules in this package.
