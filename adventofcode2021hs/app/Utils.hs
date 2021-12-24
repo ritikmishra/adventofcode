@@ -41,3 +41,8 @@ stringToIntList s = map read $ lines s
 
 enumerate :: [b] -> [(Int, b)]
 enumerate = zip [0..]
+
+bitsToDecimal :: [Bool] -> Int
+bitsToDecimal bits = foldl (\acc (pow, num) -> if num then 2^pow + acc else acc) 0 $ zip [0..] (reverse bits)
+
+

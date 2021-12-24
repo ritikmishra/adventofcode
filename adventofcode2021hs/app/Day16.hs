@@ -2,8 +2,7 @@ module Day16 where
 import System.IO ( openFile, hGetContents, IOMode(ReadMode) )
 import Control.Monad.State
 
-bitsToDecimal :: [Bool] -> Int
-bitsToDecimal bits = foldl (\acc (pow, num) -> if num then 2^pow + acc else acc) 0 $ zip [0..] (reverse bits)
+import Utils (bitsToDecimal)
 
 inputToBitStr :: String -> [Bool]
 inputToBitStr = concatMap hexToBits

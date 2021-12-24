@@ -44,6 +44,7 @@ executable adventofcode2021hs
                       Day17
                       Day18
                       Day19
+                      Day20
                       VectorMath
                       Utils
 
