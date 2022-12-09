@@ -22,6 +22,12 @@ name = "day5"
 [[bin]]
 name = "day6"
 
+[[bin]]
+name = "day7"
+
+[[bin]]
+name = "day9"
+
 [dependencies]
 itertools = "*"
 regex = "*"
